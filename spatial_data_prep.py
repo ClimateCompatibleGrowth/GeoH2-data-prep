@@ -6,12 +6,9 @@ Created on Wed Oct 18 14:30:10 2023
 
 spatial_data_prep.py
 
-This script prepares spatial data for land exclusion and hexagon preparation.
-The inputs are the raw spatial data in /Raw_Spatial_Data
-The outputs are prepped files to be used as inputs to SPIDER and GLAES.
-These are saved in /Inputs_Glaes/data and /Inputs_Spider/data respectively
-If transferred into the GLAES and SPIDER /data folders, they can be used in combination with the included scripts
-to produce the files needed to run GEONH3
+This script prepares raw spatial data for land exclusion in GLAES and hexagon preparation in SPIDER.
+The raw inputs should be downloaded to /Raw_Spatial_Data before execution.
+The outputs are saved in /Inputs_Glaes/data and /Inputs_Spider/data respectively.
 
 """
 

@@ -6,10 +6,9 @@ Created on Wed Oct 19 11:21:15 2023
 
 spatial_data_prep.py
 
-This script joins the outputs from GLAES to the hexagons produced by SPIDER for input to GEOH2 or GEONH3
+This script joins the outputs from GLAES to the hexagons produced by SPIDER for input to GEOH2.
 The inputs are the SPIDER hex.geojson file and the GLAES pv_placements.shp and turbine_placements.shp files
-The output is a hexagon file where a count of turbine and pv installations is attached to the hexagons
-This is saved in Data as hex_final.geojson
+The output is a hexagon file where a count of turbine and pv installations is attached to the hexagons saved in Data.
 
 """
 
