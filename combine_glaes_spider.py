@@ -13,10 +13,14 @@ The output is a hexagon file where a count of turbine and pv installations is at
 """
 
 import geopandas as gpd
+import os
 
 # Define country name (used for output filenames)
-country_names = ["Algeria", "Angola", "Dem. Rep. Congo", "Cabo Verde", "Djibouti", "Egypt", "Kenya", "Mauritania",
-                 "Morocco", "Namibia", "South Africa"]
+#country_names = ["Algeria", "Angola", "Dem. Rep. Congo", "Cabo Verde", "Djibouti", "Egypt", "Kenya", "Mauritania", "Morocco", "Namibia", "South Africa"]
+country_names = ["Cabo Verde"]
+
+# Get path to this file
+dirname = os.path.dirname(__file__)
 
 # create a for loop that can loop through a list of country names
 for country_name in country_names:
@@ -27,11 +31,17 @@ for country_name in country_names:
     country_name_nospace = country_name.replace(" ", "")
     country_name_nospace = country_name_nospace.replace(".", "")
 
+    # Get paths
+    hex_path = os.path.join(dirname, "Inputs_Spider", "processed", f"{country_name_nospace}_hex.geojson")
+    wind_path = os.path.join(dirname, "Inputs_Glaes", "processed", f"{country_name}_turbine_placements.shp")
+    pv_path = os.path.join(dirname, "Inputs_Glaes", "processed", f"{country_name}_pv_placements.shp")
+    save_path = os.path.join(dirname, "Inputs_GeoH2", "Data", f"{country_name_nospace}_hex_final.geojson")
+
     # Load all files and convert all to the country's CRS
     print(" - Loading files...")
-    hex = gpd.read_file(f"C:\\Users\\lahert5576\\PycharmProjects\\ccg-spider\\prep\\processed\\{country_name_nospace}_hex.geojson")
-    wind_points = gpd.read_file(f"C:\\Users\\lahert5576\\PycharmProjects\\glaes\\results\\{country_name}_turbine_placements_4MW.shp")
-    pv_points = gpd.read_file(f"C:\\Users\\lahert5576\\PycharmProjects\\glaes\\results\\{country_name}_pv_placements.shp")
+    hex = gpd.read_file(hex_path)
+    wind_points = gpd.read_file(wind_path)
+    pv_points = gpd.read_file(pv_path)
     hex.to_crs(pv_points.crs, inplace=True)
 
     print(" - Joining turbine locations...")
@@ -62,5 +72,5 @@ for country_name in country_names:
 
     print(" - Done! Saving to GeoJSON.")
     # Save the file
-    hex.to_file(f'C:\\Users\\lahert5576\\PycharmProjects\\GeoNH3\\Data\\{country_name_nospace}_hex_final.geojson', driver='GeoJSON', encoding='utf-8')
+    hex.to_file(save_path, driver='GeoJSON', encoding='utf-8')
 
