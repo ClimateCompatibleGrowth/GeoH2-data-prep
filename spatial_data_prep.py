@@ -19,6 +19,7 @@ import pickle
 import rasterio
 from rasterio.mask import mask
 from shapely.geometry import mapping
+from unidecode import unidecode
 
 # Record the starting time
 start_time = time.time()
@@ -38,12 +39,10 @@ glaes_output_dir = os.path.join(dirname, 'Inputs_Glaes', 'data')
 os.makedirs(glaes_output_dir, exist_ok=True)
 spider_output_dir = os.path.join(dirname, 'Inputs_Spider', 'data')
 os.makedirs(spider_output_dir, exist_ok=True)
-#glaes_output_dir = 'C:\\Users\\lahert5576\\PycharmProjects\\GeoNH3\\Inputs_Glaes\\data\\'
-#spider_output_dir = 'C:\\Users\\lahert5576\\PycharmProjects\\GeoNH3\\Inputs_Spider\\data\\'
 
 # Define country name (used for output filenames)
-#country_names = ["Algeria", "Angola", "Dem. Rep. Congo", "Cabo Verde", "Djibouti", "Egypt", "Kenya", "Mauritania", "Morocco", "Namibia", "South Africa"]
-country_names = ["Cabo Verde"]
+#country_names = ["Benin", "Cameroon", "Congo", "Côte d'Ivoire", "Eq. Guinea", "Eritrea", "Gabon", "Gambia", "Ghana","Guinea", "Guinea-Bissau", "Liberia", "Libya", "Madagascar", "Mauritius", "Mozambique", "Nigeria", "Niger", "São Tomé and Principe", "Senegal", "Seychelles", "Sierra Leone", "Somalia", "Sudan", "Tanzania", "Togo", "Tunisia"]
+country_names = ["Netherlands"]
 
 countries = gpd.read_file(regionPath).set_index('NAME')
 
@@ -51,23 +50,29 @@ countries = gpd.read_file(regionPath).set_index('NAME')
 for country_name in country_names:
     print("Prepping " + country_name + "...")
 
-    # save country boundaries
+    # Get country names without accents, spaces, apostrophes, or periods for saving files
+    country_name_clean = unidecode(country_name)
+    country_name_clean = country_name_clean.replace(" ", "")
+    country_name_clean = country_name_clean.replace(".", "")
+    country_name_clean = country_name_clean.replace("'", "")
+
+    # grab country boundaries
     country = countries.loc[[f'{country_name}'], :]
 
     # calculate UTM zone based on representative point of country
     latitude, longitude = country.representative_point()[0].y, country.representative_point()[0].x
     EPSG = int(32700 - round((45 + latitude) / 90, 0) * 100 + round((183 + longitude) / 6, 0))
-    with open(os.path.join(glaes_output_dir, f'{country_name}_EPSG.pkl'), 'wb') as file:
+    with open(os.path.join(glaes_output_dir, f'{country_name_clean}_EPSG.pkl'), 'wb') as file:
        pickle.dump(EPSG, file)
 
     # reproject country to UTM zone
     country.to_crs(epsg=EPSG, inplace=True)
-    country.to_file(os.path.join(glaes_output_dir, f'{country_name}.geojson'), driver='GeoJSON', encoding='utf-8')
+    country.to_file(os.path.join(glaes_output_dir, f'{country_name_clean}.geojson'), driver='GeoJSON', encoding='utf-8')
 
     # Buffer the "country" polygon by 1000 meters to create a buffer zone
     country_buffer = country['geometry'].buffer(10000)
     country_buffer.make_valid()
-    country_buffer.to_file(os.path.join(glaes_output_dir, f'{country_name}_buff.geojson'), driver='GeoJSON', encoding='utf-8')
+    country_buffer.to_file(os.path.join(glaes_output_dir, f'{country_name_clean}_buff.geojson'), driver='GeoJSON', encoding='utf-8')
 
     # reproject GOAS to UTM zone of country
     GOAS = gpd.read_file(oceanPath)
@@ -76,33 +81,37 @@ for country_name in country_names:
     GOAS_country = gpd.clip(GOAS, country_buffer)
     GOAS_country['geometry'].make_valid()
     # Reconvert to country CRS? Check it makes no difference in distance outputs. GLAES seems happy with 4326.
-    GOAS_country.to_file(os.path.join(glaes_output_dir, f'{country_name}_oceans.geojson'), driver='GeoJSON', encoding='utf-8')
-    GOAS_country.to_file(os.path.join(glaes_output_dir, f'{country_name}_oceans.gpkg'), driver='GPKG', encoding='utf-8')
+    GOAS_country.to_file(os.path.join(glaes_output_dir, f'{country_name_clean}_oceans.geojson'), driver='GeoJSON', encoding='utf-8')
 
     # reproject protected areas to UTM zone of country
     protected_areas = gpd.read_file(protectedAreaPath)
     protected_areas.to_crs(epsg=EPSG, inplace=True)
-    protected_areas.to_file(os.path.join(glaes_output_dir, f'{country_name}_protected_areas.geojson'), driver='GeoJSON', encoding='utf-8')
+    protected_areas.to_file(os.path.join(glaes_output_dir, f'{country_name_clean}_protected_areas.geojson'), driver='GeoJSON', encoding='utf-8')
 
-    # Get country names without spaces or periods for SPIDER
-    country_name_nospace = country_name.replace(" ", "")
-    country_name_nospace = country_name_nospace.replace(".", "")
+    # Get country names without accents, spaces, apostrophes, or periods
+    country_name_clean = unidecode(country_name)
+    country_name_clean = country_name_clean.replace(" ", "")
+    country_name_clean = country_name_clean.replace(".", "")
+    country_name_clean = country_name_clean.replace("'", "")
+
+    # Save oceans to gpkg for spider
+    GOAS_country.to_file(os.path.join(spider_output_dir, f'{country_name_clean}_oceans.gpkg'), driver='GPKG', encoding='utf-8')
 
     # Save OSM layers in 4236 gpkgs for spider
-    OSM_path = os.path.join(data_path, "OSM", f"{country_name}")
+    OSM_path = os.path.join(data_path, "OSM", f"{country_name_clean}")
 
     OSM_waterbodies = gpd.read_file(os.path.join(OSM_path, 'gis_osm_water_a_free_1.shp'))
-    OSM_waterbodies.to_file(os.path.join(spider_output_dir, f'{country_name_nospace}_waterbodies.gpkg'), driver='GPKG', encoding='utf-8')
+    OSM_waterbodies.to_file(os.path.join(spider_output_dir, f'{country_name_clean}_waterbodies.gpkg'), driver='GPKG', encoding='utf-8')
     OSM_roads = gpd.read_file(os.path.join(OSM_path, f'gis_osm_roads_free_1.shp'))
-    OSM_roads.to_file(os.path.join(spider_output_dir, f'{country_name_nospace}_roads.gpkg'), driver='GPKG', encoding='utf-8')
+    OSM_roads.to_file(os.path.join(spider_output_dir, f'{country_name_clean}_roads.gpkg'), driver='GPKG', encoding='utf-8')
     OSM_waterways = gpd.read_file(os.path.join(OSM_path, 'gis_osm_waterways_free_1.shp'))
-    OSM_waterways.to_file(os.path.join(spider_output_dir, f'{country_name_nospace}_waterways.gpkg'), driver='GPKG', encoding='utf-8')
+    OSM_waterways.to_file(os.path.join(spider_output_dir, f'{country_name_clean}_waterways.gpkg'), driver='GPKG', encoding='utf-8')
 
     # Convert country back to EPSC 4326 to trim CLC and save this version for SPIDER as well
     country.to_crs(epsg=4326, inplace=True)
-    country.to_file(os.path.join(spider_output_dir, f'{country_name_nospace}.gpkg'), driver='GPKG', encoding='utf-8')
+    country.to_file(os.path.join(spider_output_dir, f'{country_name_clean}.gpkg'), driver='GPKG', encoding='utf-8')
 
-    # Open the CLC eoTIFF file for reading
+    # Open the CLC GeoTIFF file for reading
     with rasterio.open(clcRasterPath) as src:
         # Mask the raster using the vector file's geometry
         out_image, out_transform = mask(src, country.geometry.apply(mapping), crop=True)
@@ -116,7 +125,7 @@ for country_name in country_names:
         })
 
         # Save the clipped raster as a new GeoTIFF file
-        with rasterio.open(os.path.join(glaes_output_dir, f'{country_name}_CLC.tif'), 'w', **out_meta) as dest:
+        with rasterio.open(os.path.join(glaes_output_dir, f'{country_name_clean}_CLC.tif'), 'w', **out_meta) as dest:
             dest.write(out_image)
 
 

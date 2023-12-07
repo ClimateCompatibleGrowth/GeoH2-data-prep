@@ -47,10 +47,7 @@ Download these files and place them in the `Raw_Spatial_Data` folder.
 ### 2.2 Define countries to study
 
 These tools can allow you to prepare data for multiple countries at once. 
-To define what countries to look at, take the following two steps:
-- Modify the list `country_names` in `spatial_data_prep.py` and `combine_glaes_spider.py` to contain the names of all the countries for which you want to prepare data.
-- Take the template `Country_config.yml` under `Inputs_Spider`. Make a duplicate for each country of interest with the word `Country` replaced with the country name without periods or spaces.
-
+To define what countries to look at, modify the list `country_names` in `spatial_data_prep.py`, `make_spider_configs.py`, `combine_glaes_spider.py`, and `Inputs_Glaes/workflow.py` to contain the names of all the countries for which you want to prepare data.
 Note that the spellings used for country names must match those used in the Natural Earth country boundaries shapefile. 
 
 ### 2.3 Run initial data prep
@@ -77,7 +74,7 @@ Take the contents of the `Inputs_Spider` folder and copy them into your spider r
 You can then move to this directory, activate your spider environment, and run the spider CLI. 
 Take the following command, replace the `Country` with the name of the country you are studying without spaces or periods, and paste it in your terminal:
 
-`.../prep % gdal_rasterize data/Country.gpkg -burn 1 -tr 0.1 0.1 data/blank.tif && gdalwarp -t_srs EPSG:4088 data/blank.tif data/blank_proj.tif && spi processed/Country_hex.geojson`
+`.../prep % gdal_rasterize data/Country.gpkg -burn 1 -tr 0.1 0.1 data/blank.tif && gdalwarp -t_srs EPSG:4088 data/blank.tif data/blank_proj.tif && spi --config=configs/Country_config.yml processed/Country_hex.geojson`
 
 This command must be issued for each country to be studied. 
 You can "daisy chain" the commands for multiple countries together using the `&&` operator.
@@ -93,7 +90,4 @@ The spatial data can then be combined into a final hexagon file for use in GeoH2
 
 This will save a file with the format `Country_hex_final.geojson` to the folder `Inputs_GeoH2\Data`.
 This can then be pasted into a copy of the `GeoH2` repository as your baseline input data for modelling. 
-
-
-
 

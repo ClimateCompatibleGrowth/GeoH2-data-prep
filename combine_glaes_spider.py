@@ -14,10 +14,13 @@ The output is a hexagon file where a count of turbine and pv installations is at
 
 import geopandas as gpd
 import os
+from unidecode import unidecode
 
 # Define country name (used for output filenames)
+#"Benin", "Cameroon", "Congo", "Côte d'Ivoire", "Eq. Guinea", "Eritrea", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea-Bissau", "Liberia", "Libya", "Madagascar", "Mauritius", "Mozambique", "Nigeria", "Niger",
 #country_names = ["Algeria", "Angola", "Dem. Rep. Congo", "Cabo Verde", "Djibouti", "Egypt", "Kenya", "Mauritania", "Morocco", "Namibia", "South Africa"]
-country_names = ["Cabo Verde"]
+#country_names = ["São Tomé and Principe", "Senegal", "Seychelles", "Sierra Leone", "Somalia", "Sudan", "Tanzania", "Togo", "Tunisia"]
+country_names = ["Netherlands"]
 
 # Get path to this file
 dirname = os.path.dirname(__file__)
@@ -27,15 +30,17 @@ for country_name in country_names:
 
     print(f"Combining GLAES and SPIDER data for {country_name}!")
 
-    # Get country name with no spaces or periods to load SPIDER files
-    country_name_nospace = country_name.replace(" ", "")
-    country_name_nospace = country_name_nospace.replace(".", "")
+    # Get country names without accents, spaces, apostrophes, or periods for loading files
+    country_name_clean = unidecode(country_name)
+    country_name_clean = country_name_clean.replace(" ", "")
+    country_name_clean = country_name_clean.replace(".", "")
+    country_name_clean = country_name_clean.replace("'", "")
 
     # Get paths
-    hex_path = os.path.join(dirname, "Inputs_Spider", "processed", f"{country_name_nospace}_hex.geojson")
+    hex_path = os.path.join(dirname, "Inputs_Spider", "processed", f"{country_name_clean}_hex.geojson")
     wind_path = os.path.join(dirname, "Inputs_Glaes", "processed", f"{country_name}_turbine_placements.shp")
     pv_path = os.path.join(dirname, "Inputs_Glaes", "processed", f"{country_name}_pv_placements.shp")
-    save_path = os.path.join(dirname, "Inputs_GeoH2", "Data", f"{country_name_nospace}_hex_final.geojson")
+    save_path = os.path.join(dirname, "Inputs_GeoH2", "Data", f"{country_name_clean}_hex_final.geojson")
 
     # Load all files and convert all to the country's CRS
     print(" - Loading files...")
@@ -73,4 +78,3 @@ for country_name in country_names:
     print(" - Done! Saving to GeoJSON.")
     # Save the file
     hex.to_file(save_path, driver='GeoJSON', encoding='utf-8')
-
