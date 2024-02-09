@@ -4,7 +4,7 @@ The GeoH2 library requires spatial hexagon files for the area of interest with s
 These scripts are built to assist in creating these input data. 
 They allow users to move from raw data inputs to a GeoH2-ready hexagon input by interfacing with the Global Land Availability of Energy Systems ([GLAES](https://github.com/FZJ-IEK3-VSA/glaes/tree/master/)) and Spatially Integrated Development of Energy and Resources ([SPIDER](https://github.com/carderne/ccg-spider/tree/main)).
 Please note that when using this codebase, users may need to modify the filenames and paths included in the scripts should new releases of the suggested data be made or should the user choose to use different/supplementary data sources.
-
+___
 ## 1 Installation instructions
 
 ### 1.1 Clone the repository
@@ -32,7 +32,7 @@ These pre-processing scripts interface with the Glaes and SPIDER packages.
 Please also install these packages and create separate environments for each as described in the instructions available at the links below. 
 - GLAES: https://github.com/FZJ-IEK3-VSA/glaes/tree/master
 - Spider: https://github.com/carderne/ccg-spider/tree/main
-
+___
 ## 2 Usage instructions
 
 ### 2.1 Download input data
@@ -93,4 +93,27 @@ The spatial data can then be combined into a final hexagon file for use in GeoH2
 
 This will save a file with the format `Country_hex_final.geojson` to the folder `Inputs_GeoH2\Data`.
 This can then be pasted into a copy of the `GeoH2` repository as your baseline input data for modelling. 
+___
+
+## Citation
+
+If you decide to use this library and/or GeoH2, please kindly cite us using the following: 
+
+*Halloran, C., Leonard, A., Salmon, N., Müller, L., & Hirmer, S. (2024). 
+GeoH2 model: Geospatial cost optimization of green hydrogen production including storage and transportation. 
+Pre-print submitted to MethodsX: https://doi.org/10.5281/zenodo.10568855. 
+Model available on Github: https://github.com/ClimateCompatibleGrowth/GeoH2.*
+
+```commandline
+@techreport{halloran2024geoh2,
+author  = {Halloran, C and Leonard, A and Salmon, N and Müller, L and Hirmer, S},
+title   = {GeoH2 model: Geospatial cost optimization of green hydrogen production including storage and
+transportation},
+type = {Pre-print submitted to MethodsX},
+year    = {2024},
+doi = {10.5281/zenodo.10568855},
+note = {Model available on Github at https://github.com/ClimateCompatibleGrowth/GeoH2.}
+}
+```
+___
 
