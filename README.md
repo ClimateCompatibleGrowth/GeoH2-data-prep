@@ -1,6 +1,9 @@
 # GeoH2-data-prep
-Spatial data preparation tools for GeoH2 users. 
-These scripts allow users to move from raw data inputs to a GeoH2-ready hexagon input by interfacing with [GLAES](https://github.com/FZJ-IEK3-VSA/glaes/tree/master/) and [SPIDER](https://github.com/carderne/ccg-spider/tree/main). 
+Spatial data preparation tools for [GeoH2](https://github.com/ClimateCompatibleGrowth/GeoH2) users. 
+The GeoH2 library requires spatial hexagon files for the area of interest with several spatial parameters attached as an input. 
+These scripts are built to assist in creating these input data. 
+They allow users to move from raw data inputs to a GeoH2-ready hexagon input by interfacing with the Global Land Availability of Energy Systems ([GLAES](https://github.com/FZJ-IEK3-VSA/glaes/tree/master/)) and Spatially Integrated Development of Energy and Resources ([SPIDER](https://github.com/carderne/ccg-spider/tree/main)).
+Please note that when using this codebase, users may need to modify the filenames and paths included in the scripts should new releases of the suggested data be made or should the user choose to use different/supplementary data sources.
 
 ## 1 Installation instructions
 
@@ -26,8 +29,8 @@ You are now ready to run the scripts in this repository.
 ### 1.3 Install Glaes and SPIDER
 
 These pre-processing scripts interface with the Glaes and SPIDER packages.
-Please also install these packages with separate environments following the instructions available at the links below. 
-- Glaes: https://github.com/FZJ-IEK3-VSA/glaes/tree/master
+Please also install these packages and create separate environments for each as described in the instructions available at the links below. 
+- GLAES: https://github.com/FZJ-IEK3-VSA/glaes/tree/master
 - Spider: https://github.com/carderne/ccg-spider/tree/main
 
 ## 2 Usage instructions
