@@ -17,13 +17,13 @@ After cloning, navigate to the top-level folder of the repo
 
 ### 1.2 Install Python dependencies
 The Python package requirements to use these tools are in the `requirements.yml` file. 
-You can install these requirements in a new environment using `conda` package and environment manager (available for installation [here](https://docs.conda.io/en/latest/miniconda.html)): 
+You can install these requirements in a new environment using `mamba` package and environment manager (installation instructions [here](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html)): 
 
-` .../GeoH2-data-prep % conda env create -f requirements.yml`
+` .../GeoH2-data-prep % mamba env create -f requirements.yml`
 
 Then activate this new environment using
 
-`.../GeoH2-data-prep % conda activate geoh2-data-prep`
+`.../GeoH2-data-prep % mamba activate geoh2-data-prep`
 
 You are now ready to run the scripts in this repository.
 
