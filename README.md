@@ -45,6 +45,7 @@ Before running the preparation scripts, the data must be downloaded.
 - The Corine Land Cover dataset can be downloaded from: https://zenodo.org/records/3939050
 
 Download these files and place them in the `Raw_Spatial_Data` folder.
+For OpenStreetMap files, please extract the .shp.zip folder for each country to a subfolder `OSM\[CountryName]` under `Raw_Spatial_Data`.
 
 ### 2.2 Define countries to study
 
