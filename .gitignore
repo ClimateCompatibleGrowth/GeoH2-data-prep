@@ -19,6 +19,7 @@ Inputs_Spider/configs/**
 
 Inputs_GeoH2/Data/**
 !Inputs_GeoH2/Data/.gitkeep
+!Inputs_GeoH2/.gitkeep
 
 .idea/
 
