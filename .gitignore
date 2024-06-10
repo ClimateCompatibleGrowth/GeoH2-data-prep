@@ -1,8 +1,18 @@
 # My exclusions
 Raw_Spatial_Data/**
+!Raw_Spatial_Data/.gitkeep
 Inputs_Glaes/data/**
+!Inputs_Glaes/data/.gitkeep
+Inputs_Glaes/processed/**
+!Inputs_Glaes/processed/.gitkeep
 Inputs_Spider/data/**
+!Inputs_Spider/data/.gitkeep
+Inputs_Spider/processed/**
+!Inputs_Spider/processed/.gitkeep
+Inputs_Spider/configs/**
+!Inputs_Spider/configs/.gitkeep
 Inputs_GeoH2/Data/**
+!Inputs_GeoH2/Data/.gitkeep
 
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
