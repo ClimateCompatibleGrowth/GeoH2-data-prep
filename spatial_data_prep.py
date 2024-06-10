@@ -25,7 +25,8 @@ from unidecode import unidecode
 start_time = time.time()
 
 # Define country name (used for output filenames)
-country_names = ["REPLACE", "WITH", "COUNTRY", "NAMES"]
+#country_names = ["REPLACE", "WITH", "COUNTRY", "NAMES"]
+country_names = ["Djibouti"]
 
 # Get paths to data files
 dirname = os.path.dirname(__file__)
@@ -58,7 +59,8 @@ for country_name in country_names:
     country = countries.loc[[f'{country_name}'], :]
 
     # calculate UTM zone based on representative point of country
-    latitude, longitude = country.representative_point()[0].y, country.representative_point()[0].x
+    representative_point = country.representative_point().iloc[0]
+    latitude, longitude = representative_point.y, representative_point.x
     EPSG = int(32700 - round((45 + latitude) / 90, 0) * 100 + round((183 + longitude) / 6, 0))
     with open(os.path.join(glaes_output_dir, f'{country_name_clean}_EPSG.pkl'), 'wb') as file:
        pickle.dump(EPSG, file)
@@ -121,4 +123,5 @@ for country_name in country_names:
         with rasterio.open(os.path.join(glaes_output_dir, f'{country_name_clean}_CLC.tif'), 'w', **out_meta) as dest:
             dest.write(out_image)
 
+    print("Done!")
 

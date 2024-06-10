@@ -3,16 +3,17 @@ Spatial data preparation tools for [GeoH2](https://github.com/ClimateCompatibleG
 The GeoH2 library requires spatial hexagon files for the area of interest with several spatial parameters attached as an input. 
 These scripts are built to assist in creating these input data. 
 They allow users to move from raw data inputs to a GeoH2-ready hexagon input by interfacing with the Global Land Availability of Energy Systems ([GLAES](https://github.com/FZJ-IEK3-VSA/glaes/tree/master/)) and Spatially Integrated Development of Energy and Resources ([SPIDER](https://github.com/carderne/ccg-spider/tree/main)).
+
 Please note that when using this codebase, users may need to modify the filenames and paths included in the scripts should new releases of the suggested data be made or should the user choose to use different/supplementary data sources.
 ___
 ## 1 Installation instructions
 
 ### 1.1 Clone the repository
-First, clone the GEOH2 repository using `git`.
+First, clone the repository:
 
 `/your/path % git clone https://github.com/alycialeonard/GeoH2-data-prep.git`
 
-After installation, navigate to the top-level folder of the repo
+After cloning, navigate to the top-level folder of the repo
 
 ### 1.2 Install Python dependencies
 The Python package requirements to use these tools are in the `requirements.yml` file. 

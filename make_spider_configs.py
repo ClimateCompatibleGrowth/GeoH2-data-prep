@@ -15,7 +15,8 @@ import os
 from unidecode import unidecode
 
 # Define the list of countries to replace "Country" with
-country_names = ["REPLACE", "WITH", "COUNTRY", "NAMES"]
+# country_names = ["REPLACE", "WITH", "COUNTRY", "NAMES"]
+country_names = ["Djibouti"]
 
 # Get path to this file
 dirname = os.path.dirname(__file__)
@@ -42,6 +43,7 @@ def replace_country(node, country):
 
 # Create and save separate .yml files for each country
 for country in country_names:
+    print(f'Prepping config file for {country}...')
     # Get country names without accents, spaces, apostrophes, or periods for SPIDER
     country_name_clean = unidecode(country)
     country_name_clean = country_name_clean.replace(" ", "")
@@ -55,6 +57,4 @@ for country in country_names:
     with open(os.path.join(save_path, output_file), 'w', encoding='utf-8') as file:
         yaml.dump(current_data, file, default_flow_style=False, allow_unicode=True)
 
-    print(f'"{input_file}" has been processed and saved as "{output_file}".')
-
-print(f'All files have been created.')
+    print(f'Config file is created and saved as "{output_file}"!')

@@ -4,7 +4,7 @@ Created on Wed Oct 19 11:21:15 2023
 
 @author: Alycia Leonard, University of Oxford
 
-spatial_data_prep.py
+combine_glaes_spider.py
 
 This script joins the outputs from GLAES to the hexagons produced by SPIDER for input to GEOH2.
 The inputs are the SPIDER hex.geojson file and the GLAES pv_placements.shp and turbine_placements.shp files
@@ -48,7 +48,7 @@ for country_name in country_names:
 
     print(" - Joining turbine locations...")
     # Spatial join the wind points to the polygons
-    spatial_join = gpd.sjoin(wind_points, hex, how='left', op='within')
+    spatial_join = gpd.sjoin(wind_points, hex, how='left', predicate='within')
 
     # Group by polygon and count the points within each polygon
     wind_point_counts = spatial_join.groupby('index_right').size()
@@ -57,11 +57,11 @@ for country_name in country_names:
     hex['theo_turbines'] = wind_point_counts
 
     # If some polygons have no points, fill their 'point_count' with 0
-    hex['theo_turbines'].fillna(0, inplace=True)
+    hex['theo_turbines'] = hex['theo_turbines'].fillna(0)
 
     print(" - Joining pv locations...")
     # Spatial join the pv points to the polygons
-    spatial_join = gpd.sjoin(pv_points, hex, how='left', op='within')
+    spatial_join = gpd.sjoin(pv_points, hex, how='left', predicate='within')
 
     # Group by polygon and count the points within each polygon
     pv_point_counts = spatial_join.groupby('index_right').size()
@@ -70,8 +70,15 @@ for country_name in country_names:
     hex['theo_pv'] = pv_point_counts
 
     # If some polygons have no points, fill their 'point_count' with 0
-    hex['theo_pv'].fillna(0, inplace=True)
+    hex['theo_pv'] = hex['theo_pv'].fillna(0)
 
-    print(" - Done! Saving to GeoJSON.")
-    # Save the file
-    hex.to_file(save_path, driver='GeoJSON', encoding='utf-8')
+    print(" - Done! Saving to GeoJSON...")
+    # Check if hex GeoDataFrame is empty before saving
+    if not hex.empty:
+        # Save the file
+        hex.to_file(save_path, driver='GeoJSON', encoding='utf-8')
+        print(" - Save complete!")
+    else:
+        print(" ! Hex GeoDataFrame is empty. This can happen when your country is much smaller than the hexagon size you have used in Spider. Please use smaller hexagons in Spider and retry. Not saving to GeoJSON.")
+
+
