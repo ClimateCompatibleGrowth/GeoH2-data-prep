@@ -25,8 +25,7 @@ from unidecode import unidecode
 start_time = time.time()
 
 # Define country name (used for output filenames)
-#country_names = ["REPLACE", "WITH", "COUNTRY", "NAMES"]
-country_names = ["Djibouti"]
+country_names = ["REPLACE", "WITH", "COUNTRY", "NAMES"]
 
 # Get paths to data files
 dirname = os.path.dirname(__file__)
