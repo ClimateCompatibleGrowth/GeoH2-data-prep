@@ -41,7 +41,7 @@ Before running the preparation scripts, the data must be downloaded.
 
 - The global oceans and seas geopackage can be downloaded from: https://www.marineregions.org/downloads.php
 - The country boundaries shapefile can be downloaded from: https://www.naturalearthdata.com/downloads/50m-cultural-vectors/50m-admin-0-countries-2/
-- OpenStreetMap layers can be downloaded from: https://download.geofabrik.de/africa.html
+- OpenStreetMap Shapefile layers can be downloaded from: https://download.geofabrik.de/africa.html
 - The Corine Land Cover dataset can be downloaded from: https://zenodo.org/records/3939050
 
 Download these files and place them in the `Raw_Spatial_Data` folder.
