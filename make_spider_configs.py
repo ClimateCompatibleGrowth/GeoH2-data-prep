@@ -15,8 +15,7 @@ import os
 from unidecode import unidecode
 
 # Define the list of countries to replace "Country" with
-# country_names = ["Benin", "Cameroon", "Congo", "Côte d'Ivoire", "Eq. Guinea", "Eritrea", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea-Bissau", "Liberia", "Libya", "Madagascar", "Mauritius", "Mozambique", "Nigeria", "Niger", "São Tomé and Principe", "Senegal", "Seychelles", "Sierra Leone", "Somalia", "Sudan", "Tanzania", "Togo", "Tunisia"]
-country_names = ["Netherlands"]
+country_names = ["REPLACE", "WITH", "COUNTRY", "NAMES"]
 
 # Get path to this file
 dirname = os.path.dirname(__file__)

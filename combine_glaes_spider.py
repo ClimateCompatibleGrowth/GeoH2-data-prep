@@ -17,10 +17,7 @@ import os
 from unidecode import unidecode
 
 # Define country name (used for output filenames)
-#"Benin", "Cameroon", "Congo", "Côte d'Ivoire", "Eq. Guinea", "Eritrea", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea-Bissau", "Liberia", "Libya", "Madagascar", "Mauritius", "Mozambique", "Nigeria", "Niger",
-#country_names = ["Algeria", "Angola", "Dem. Rep. Congo", "Cabo Verde", "Djibouti", "Egypt", "Kenya", "Mauritania", "Morocco", "Namibia", "South Africa"]
-#country_names = ["São Tomé and Principe", "Senegal", "Seychelles", "Sierra Leone", "Somalia", "Sudan", "Tanzania", "Togo", "Tunisia"]
-country_names = ["Netherlands"]
+country_names = ["REPLACE", "WITH", "COUNTRY", "NAMES"]
 
 # Get path to this file
 dirname = os.path.dirname(__file__)

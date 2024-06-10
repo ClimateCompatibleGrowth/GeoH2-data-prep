@@ -18,15 +18,14 @@ import os
 import pickle
 
 # Define country name (used for output filenames)
-country_names = ["Benin", "Cameroon", "Congo", "Côte d'Ivoire", "Eq. Guinea", "Eritrea", "Gabon", "Gambia", "Ghana",
-                 "Guinea", "Guinea-Bissau", "Liberia", "Libya", "Madagascar", "Mauritius", "Mozambique", "Nigeria",
-                 "Niger", "São Tomé and Principe", "Senegal", "Seychelles", "Sierra Leone", "Somalia", "Sudan",
-                 "Tanzania", "Togo", "Tunisia"]
+country_names = ["REPLACE", "WITH", "COUNTRY", "NAMES"]
 
-# Define turbine radius in meters for spacing
-d = 150  # NREL_ReferenceTurbine_2020ATB_4MW - https://nrel.github.io/turbine-models/2020ATB_NREL_Reference_4MW_150.html
-# d = 80 # Vestas_V80_2MW_gridstreamer - https://en.wind-turbine-models.com/turbines/19-vestas-v80-2.0
-# d = 127 # Enercon_E126_7500kW - https://www.thewindpower.net/turbine_en_225_enercon_e126-7500.php
+# Define turbine radius in meters for spacing.
+# This is NREL_ReferenceTurbine_2020ATB_4MW - https://nrel.github.io/turbine-models/2020ATB_NREL_Reference_4MW_150.html
+# Other options:
+# Vestas_V80_2MW_gridstreamer - https://en.wind-turbine-models.com/turbines/19-vestas-v80-2.0, d = 80
+# Enercon_E126_7500kW - https://www.thewindpower.net/turbine_en_225_enercon_e126-7500.php, d = 127
+d = 150
 
 # Record the starting time
 start_time = time.time()
@@ -58,11 +57,6 @@ for country_name in country_names:
 
     print(" - Applying exclusions - coast...")
     ec.excludeVectorType(os.path.join(data_path,  f'{country_name}_oceans.geojson'), buffer=250)
-    current_time = time.time() - start_time
-    print(f"   Done! Time elapsed so far: {current_time:.4f} seconds")
-
-    print(" - Applying exclusions - protected areas...")
-    ec.excludeVectorType(os.path.join(data_path,  f'{country_name}_protected_areas.geojson'), buffer=250)
     current_time = time.time() - start_time
     print(f"   Done! Time elapsed so far: {current_time:.4f} seconds")
 

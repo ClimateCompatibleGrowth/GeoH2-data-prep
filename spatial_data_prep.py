@@ -24,15 +24,16 @@ from unidecode import unidecode
 # Record the starting time
 start_time = time.time()
 
-# Get path to this file and then also path to data
+# Define country name (used for output filenames)
+country_names = ["REPLACE", "WITH", "COUNTRY", "NAMES"]
+
+# Get paths to data files
 dirname = os.path.dirname(__file__)
 data_path = os.path.join(dirname, 'Raw_Spatial_Data')
-
-# Get path to each specific data file
 regionPath = os.path.join(data_path, 'ne_50m_admin_0_countries', 'ne_50m_admin_0_countries.shp')
 clcRasterPath = os.path.join(data_path, "PROBAV_LC100_global_v3.0.1_2019-nrt_Discrete-Classification-map_EPSG-4326.tif")
 oceanPath = os.path.join(data_path, "GOaS_v1_20211214_gpkg", "goas_v01.gpkg")
-protectedAreaPath = os.path.join(data_path, 'Africa_protect_class_1.geojson')
+OSM_path = os.path.join(data_path, "OSM")
 
 # Define output directories
 glaes_output_dir = os.path.join(dirname, 'Inputs_Glaes', 'data')
@@ -40,10 +41,7 @@ os.makedirs(glaes_output_dir, exist_ok=True)
 spider_output_dir = os.path.join(dirname, 'Inputs_Spider', 'data')
 os.makedirs(spider_output_dir, exist_ok=True)
 
-# Define country name (used for output filenames)
-#country_names = ["Benin", "Cameroon", "Congo", "Côte d'Ivoire", "Eq. Guinea", "Eritrea", "Gabon", "Gambia", "Ghana","Guinea", "Guinea-Bissau", "Liberia", "Libya", "Madagascar", "Mauritius", "Mozambique", "Nigeria", "Niger", "São Tomé and Principe", "Senegal", "Seychelles", "Sierra Leone", "Somalia", "Sudan", "Tanzania", "Togo", "Tunisia"]
-country_names = ["Netherlands"]
-
+# Read shapefile of countries
 countries = gpd.read_file(regionPath).set_index('NAME')
 
 # create a for loop that can loop through a list of country names
@@ -74,7 +72,7 @@ for country_name in country_names:
     country_buffer.make_valid()
     country_buffer.to_file(os.path.join(glaes_output_dir, f'{country_name_clean}_buff.geojson'), driver='GeoJSON', encoding='utf-8')
 
-    # reproject GOAS to UTM zone of country
+    # Reproject GOAS to UTM zone of country
     GOAS = gpd.read_file(oceanPath)
     country_buffer = country_buffer.to_crs(epsg=4326)
     GOAS.to_crs(epsg=4326, inplace=True)
@@ -82,11 +80,6 @@ for country_name in country_names:
     GOAS_country['geometry'].make_valid()
     # Reconvert to country CRS? Check it makes no difference in distance outputs. GLAES seems happy with 4326.
     GOAS_country.to_file(os.path.join(glaes_output_dir, f'{country_name_clean}_oceans.geojson'), driver='GeoJSON', encoding='utf-8')
-
-    # reproject protected areas to UTM zone of country
-    protected_areas = gpd.read_file(protectedAreaPath)
-    protected_areas.to_crs(epsg=EPSG, inplace=True)
-    protected_areas.to_file(os.path.join(glaes_output_dir, f'{country_name_clean}_protected_areas.geojson'), driver='GeoJSON', encoding='utf-8')
 
     # Get country names without accents, spaces, apostrophes, or periods
     country_name_clean = unidecode(country_name)
@@ -98,13 +91,13 @@ for country_name in country_names:
     GOAS_country.to_file(os.path.join(spider_output_dir, f'{country_name_clean}_oceans.gpkg'), driver='GPKG', encoding='utf-8')
 
     # Save OSM layers in 4236 gpkgs for spider
-    OSM_path = os.path.join(data_path, "OSM", f"{country_name_clean}")
+    OSM_country_path = os.path.join(OSM_path, f"{country_name_clean}")
 
-    OSM_waterbodies = gpd.read_file(os.path.join(OSM_path, 'gis_osm_water_a_free_1.shp'))
+    OSM_waterbodies = gpd.read_file(os.path.join(OSM_country_path, 'gis_osm_water_a_free_1.shp'))
     OSM_waterbodies.to_file(os.path.join(spider_output_dir, f'{country_name_clean}_waterbodies.gpkg'), driver='GPKG', encoding='utf-8')
-    OSM_roads = gpd.read_file(os.path.join(OSM_path, f'gis_osm_roads_free_1.shp'))
+    OSM_roads = gpd.read_file(os.path.join(OSM_country_path, f'gis_osm_roads_free_1.shp'))
     OSM_roads.to_file(os.path.join(spider_output_dir, f'{country_name_clean}_roads.gpkg'), driver='GPKG', encoding='utf-8')
-    OSM_waterways = gpd.read_file(os.path.join(OSM_path, 'gis_osm_waterways_free_1.shp'))
+    OSM_waterways = gpd.read_file(os.path.join(OSM_country_path, 'gis_osm_waterways_free_1.shp'))
     OSM_waterways.to_file(os.path.join(spider_output_dir, f'{country_name_clean}_waterways.gpkg'), driver='GPKG', encoding='utf-8')
 
     # Convert country back to EPSC 4326 to trim CLC and save this version for SPIDER as well
