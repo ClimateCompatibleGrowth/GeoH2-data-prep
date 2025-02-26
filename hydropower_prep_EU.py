@@ -26,7 +26,7 @@ if __name__ == "__main__":
     input_path = os.path.join(script_dir, "Raw_Spatial_Data", "jrc-hydro-power-plant-database.csv")
     output_dir = os.path.join(script_dir, "Inputs_Spider", "data")
     os.makedirs(output_dir, exist_ok=True) 
-    output_path = os.path.join(output_dir, "hydropower_dams_EU.gpkg")
+    output_path = os.path.join(output_dir, "hydropower_dams.gpkg")
 
     data = pd.read_csv(input_path)
 
