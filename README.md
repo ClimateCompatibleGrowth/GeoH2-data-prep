@@ -1,3 +1,6 @@
+> **Note:** This branch includes updates for **hydropower integration** in GeoH2.  
+> A new section **2.4 Prepare Hydropower Data** has been added to explain how to process and integrate hydropower datasets.  
+
 # GeoH2-data-prep
 Spatial data preparation tools for [GeoH2](https://github.com/ClimateCompatibleGrowth/GeoH2) users. 
 The GeoH2 library requires spatial hexagon files for the area of interest with several spatial parameters attached as an input. 
@@ -62,7 +65,20 @@ From `GeoH2-data-prep`, run `spatial_data_prep.py`:
 
 This will pre-process the raw data and place the prepared versions in the `Inputs_Glaes` and `Inputs_Spider` folders.
 
-### 2.4 Run Glaes
+### 2.4 Prepare Hydropower Data
+
+The **generic_hydropower_prep.ipynb** notebook (also available as a Python script `hydropower_prep_EU.py`) processes hydropower plant data and converts it into a **GeoPackage (GPKG)** format for use in **Spider** and later in **GeoH2**. This script filters, cleans, and standardizes hydropower datasets, ensuring compatibility with the **spatial modelling workflow**.
+
+#### **Input Data Requirements**
+- The script is designed for datasets containing:
+  - **Latitude & Longitude** (plant location)
+  - **Installed capacity (MW)**
+  - **Annual generation (GWh)**
+  - **Plant type** (e.g., HDAM, HPHS)
+  - **Hydraulic head (m)**
+- It is compatible with **open-source datasets** like the [Hydropower Database](https://github.com/energy-modelling-toolkit/hydro-power-database) but can be adapted to other sources.
+
+### 2.5 Run Glaes
 
 Take the contents of the `Inputs_Glaes` folder and copy them into your Glaes repository at the top level.
 You can then move to your glaes directory, activate your glaes environment, and run the script `workflow.py`:
@@ -72,7 +88,7 @@ You can then move to your glaes directory, activate your glaes environment, and 
 This will produce files with the format `Country_turbine_placements.shp` and `Country_pv_placements.shp` under the folder `processed`.
 Copy the folder `processed` from the Glaes repository back to this repository, under `Inputs_Glaes/processed`.
 
-### 2.5 Run Spider
+### 2.6 Run Spider
 
 Take the contents of the `Inputs_Spider` folder and copy them into your spider repository under `/prep`
 You can then move to this directory, activate your spider environment, and run the spider CLI. 
@@ -86,7 +102,7 @@ This will produce a set of hexagon tiles for each country using the parameters i
 They will be saved in the folder `processed`.
 Copy this folder back to this repository under `Inputs_Spider\processed`.
 
-### 2.6 Combine Glaes and Spider results for GeoH2
+### 2.7 Combine Glaes and Spider results for GeoH2
 
 The spatial data can then be combined into a final hexagon file for use in GeoH2 using the `combine_glaes_spider.py` script:
 
