@@ -1,0 +1,182 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Oct 19 11:21:15 2023
+
+@author: Alycia Leonard, University of Oxford
+
+prep_after_spider.py
+
+This script does three main prep steps.
+
+Firstly, it joins the outputs from GLAES to the hexagons produced by SPIDER for input to GEOH2.
+The inputs are the SPIDER hex.geojson file and the GLAES pv_placements.shp and turbine_placements.shp files
+The output is a hexagon file where a count of turbine and pv installations is attached to the hexagons saved in Data.
+
+Secondly, it assigns interest rate to different hexagons for different technology categories
+based on their country.
+
+Lastly, this script removes the duplicated hexagons that belong to country/countries
+which are not the desired country.
+
+"""
+
+import geopandas as gpd
+import os
+import pandas as pd
+import json
+from utils import clean_country_name
+
+def combine_glaes_spider(hex, wind_points, pv_points):
+    """
+    Combining the glaes and spider file into one hexagon file.
+    """
+    print(" - Joining turbine locations...")
+    # Spatial join the wind points to the polygons
+    spatial_join = gpd.sjoin(wind_points, hex, how='left', predicate='within')
+
+    # Group by polygon and count the points within each polygon
+    wind_point_counts = spatial_join.groupby('index').size()
+
+    # Merge the point counts with the 'hex' GeoDataFrame based on the index
+    hex['theo_turbines'] = wind_point_counts
+
+    # If some polygons have no points, fill their 'point_count' with 0
+    hex['theo_turbines'] = hex['theo_turbines'].fillna(0)
+
+    print(" - Joining pv locations...")
+    # Spatial join the pv points to the polygons
+    spatial_join = gpd.sjoin(pv_points, hex, how='left', predicate='within')
+
+    # Group by polygon and count the points within each polygon
+    pv_point_counts = spatial_join.groupby('index').size()
+
+    # Merge the point counts with the 'hex' GeoDataFrame based on the index
+    hex['theo_pv'] = pv_point_counts
+
+    # If some polygons have no points, fill their 'point_count' with 0
+    hex['theo_pv'] = hex['theo_pv'].fillna(0)
+
+def assign_country(hexagons, world):
+    """
+    Assigns interest rate to different hexagons for different 
+    technology categories based on their country.
+
+    ...
+    Parameters
+    ----------
+    hexagons : geodataframe
+        Hexagon file from data folder
+    world : geodataframe
+        World dataset
+
+    Returns
+    -------
+    hexagons_with_country : geodataframe
+        Modified hexagons
+    """
+    hexagons.to_crs(world.crs, inplace=True)
+    countries = world.drop(columns=[
+                                    'pop_est', 
+                                    'continent', 
+                                    'iso_a3', 
+                                    'gdp_md_est',
+                                    ]
+                            )
+    countries = countries.rename(columns={'name':'country'})
+    hexagons_with_country = gpd.sjoin(hexagons, countries, op='intersects') # changed from "within"
+
+    return hexagons_with_country
+
+def remove_extra_hexagons(output_hexagon_path, country_parameters):
+    """
+    Removes duplicated hexagons.
+
+    ...
+    Parameters
+    ----------
+    output_hexagon_path : string
+        File path to output hexagon file
+    country_parameters : dataframe
+        Country file from parameters
+
+    Returns
+    -------
+    hexagons : geodataframe
+        Modified hexagons
+    """
+    with open(output_hexagon_path, 'r') as file:
+        hexagons = json.load(file)
+
+    copied_list = hexagons["features"].copy()
+    country_name = country_parameters.index.values[0]
+
+    for feature in copied_list:
+        if feature['properties']['country'] != country_name:
+            hexagons['features'].remove(feature)
+
+    return hexagons
+
+def update_hexagons(hexagons, output_hexagon_path):
+    """
+    Updates hexagon file with the new information
+    """
+    if isinstance(hexagons, dict):
+            with open(output_hexagon_path, 'w') as file:
+                json.dump(hexagons, file)
+    elif not hexagons.empty:
+        hexagons.to_file(f"{output_hexagon_path}", driver="GeoJSON")
+    else:
+        print(" ! Hex GeoDataFrame is empty. This can happen when your country \
+              is much smaller than the hexagon size you have used in Spider. \
+              Please use smaller hexagons in Spider and retry. Not saving to \
+              GeoJSON.")
+
+
+if __name__ == "__main__":
+    # Define country name (used for output filenames)
+    country_names = ["Djibouti"]
+
+    # Get path to this file
+    dirname = os.path.dirname(__file__)
+
+    # create a for loop that can loop through a list of country names
+    for country_name in country_names:
+
+        print(f"Combining GLAES and SPIDER data for {country_name}!")
+
+        # Get country names without accents, spaces, apostrophes, or periods for loading files
+        country_name_clean = clean_country_name(country_name)
+
+        # Get paths
+        hex_path = os.path.join(dirname, "ccg-spider", "prep", f"{country_name_clean}_hex.geojson")
+        wind_path = os.path.join(dirname, "inputs_glaes", "processed", f"{country_name}_turbine_placements.shp")
+        pv_path = os.path.join(dirname, "inputs_glaes", "processed", f"{country_name}_pv_placements.shp")
+        save_path = os.path.join(dirname, "inputs_geoh2", "data", f"{country_name_clean}_hex_final.geojson")
+
+        # Load all files and convert all to the country's CRS
+        print(" - Loading files...")
+        hex = gpd.read_file(hex_path)
+        wind_points = gpd.read_file(wind_path)
+        pv_points = gpd.read_file(pv_path)
+        hex.to_crs(pv_points.crs, inplace=True)
+
+        print(" - Done! Saving to GeoJSON...")
+
+        update_hexagons(hex, save_path)
+        
+        # From the main prep file from the main geoh2 repo
+        print("Prepping file...")
+        country_parameters = pd.read_excel("country_parameters.xlsx",
+                                            index_col='Country')
+        hexagons = gpd.read_file("Inputs_GeoH2/Data/Djibouti_hex_final.geojson")
+        world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres')) # may need to switch to higher res
+
+        output_hexagon_path = "inputs_geoh2/final_output/hexagons_with_country_DJ.geojson"
+
+        hexagons_with_country = assign_country(hexagons, world)
+        update_hexagons(hexagons_with_country, output_hexagon_path)
+
+        # Finish off with the removing extra hexagons.
+        final_hexagons = remove_extra_hexagons(output_hexagon_path, country_parameters)
+        update_hexagons(final_hexagons, output_hexagon_path)
+        print("File prepped.")

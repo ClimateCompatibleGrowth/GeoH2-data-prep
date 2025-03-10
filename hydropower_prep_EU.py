@@ -15,6 +15,7 @@ import os
 import pandas as pd 
 import geopandas as gpd
 from pyproj import Transformer
+from timeit import default_timer as timer
 
 # Function to convert each coordinate
 def convert_coordinates(easting, northing):
@@ -41,6 +42,7 @@ if __name__ == "__main__":
     data['lon'] = pd.to_numeric(data['lon'], errors='coerce')
     data['lat'] = pd.to_numeric(data['lat'], errors='coerce')
 
+    start = timer()
     # Rename columns to match conventions
     data = data.rename(columns={
         "installed_capacity_MW": "capacity",
@@ -48,7 +50,9 @@ if __name__ == "__main__":
         "lon": "Longitude",
         "type": "plant_type"
     })
-
+    end = timer()
+    print(end-start)
+    
     # Drop rows with missing coordinates
     data = data.dropna(subset=['Longitude', 'Latitude'])
 
