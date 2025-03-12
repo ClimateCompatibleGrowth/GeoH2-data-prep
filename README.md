@@ -68,7 +68,7 @@ This will pre-process the raw data and place the prepared versions in the `Input
 > [!NOTE]
 > This is an optional step. This can be skipped if you are not analysing hydropower.
 
-The `generic_hydropower_prep.ipynb` notebook is available for users who use Jupyter Labs and is a further explanation tool for how we prepare hydropower data. `hydropower_prep_EU.py` and `hydropower_prep.py` can be used by users who do not use Jupyter Labs. The hydropower script processes hydropower plant data and converts it into a **GeoPackage (GPKG)** format for use in **Spider** and later in **GeoH2**. This script filters, cleans, and standardizes hydropower datasets, ensuring compatibility with the **spatial modelling workflow**.
+The `generic_hydropower_prep.ipynb` notebook is available for users who use Jupyter Labs and is a further explanation tool for how we prepare hydropower data. `hydropower_prep_EU.py` can be used by users who do not use Jupyter Labs. The hydropower script processes hydropower plant data and converts it into a **GeoPackage (GPKG)** format for use in **Spider** and later in **GeoH2**. This script filters, cleans, and standardizes hydropower datasets, ensuring compatibility with the **spatial modelling workflow**.
 
 #### **Input Data Requirements**
 - The script is designed for datasets containing:
