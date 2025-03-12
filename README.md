@@ -107,7 +107,7 @@ They will be saved in the folder `processed`.
 Copy this folder back to this repository under `Inputs_Spider\processed`.
 
 >[!NOTE]
-> The tif files saved in the `processed` file must be deleted before another run.
+> The tif files saved in the `processed` folder must be deleted before another run.
 
 ### 2.7 Combine Glaes and Spider results for GeoH2
 
