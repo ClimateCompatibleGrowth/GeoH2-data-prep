@@ -19,7 +19,7 @@ country_names = ["REPLACE", "WITH", "COUNTRY", "NAMES"]
 
 # Get path to this file
 dirname = os.path.dirname(__file__)
-input_file = os.path.join(dirname, "Inputs_Spider", "Country_config.yml")
+input_file = os.path.join(dirname, "Inputs_Spider", "Country_config_hydro.yml")
 save_path = os.path.join(dirname, "Inputs_Spider", "configs")
 
 
