@@ -22,9 +22,9 @@ which are not the desired country.
 
 import argparse
 import geopandas as gpd
-import os
-import pandas as pd
 import json
+import os
+
 from utils import clean_country_name
 
 def combine_glaes_spider(hex, wind_points, pv_points):
@@ -85,6 +85,9 @@ def assign_country(hexagons, world):
                             )
     countries = countries.rename(columns={'name':'country'})
     hexagons_with_country = gpd.sjoin(hexagons, countries, op='intersects') # changed from "within"
+    
+    # Clean up slightly by removing index_right
+    hexagons_with_country = hexagons_with_country.drop('index_right', axis=1)
 
     return hexagons_with_country
 
@@ -141,7 +144,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if not args.isocodes:
-        parser.error('Please enter the isocodes. This will be used in naming the final file.')
+        parser.error('Please enter the ISO codes. This will be used in naming the final file.')
 
     # Define country name (used for output filenames)
     country_names = args.countries

@@ -9,33 +9,51 @@ They allow users to move from raw data inputs to a GeoH2-ready hexagon input by 
 ___
 ## 1 Installation instructions
 
-### 1.1 Clone the repository
-First, clone the repository:
+### 1.1 Clone the repository and submodules
+First, clone the repository and initialise the submodules in one:
 
-`/your/path % git clone https://github.com/ClimateCompatibleGrowth/GeoH2-data-prep.git`
+`/your/path % git clone --recurse-submodules https://github.com/ClimateCompatibleGrowth/GeoH2-data-prep.git`
 
-After cloning, navigate to the top-level folder of the repo.
+After cloning, navigate to the top-level folder of the repository.
 
 ### 1.2 Install Python dependencies
-The Python package requirements to use these tools are in the `requirements.yml` file. 
+The Python package requirements to use these tools are in the `environment.yaml` file. 
 You can install these requirements in a new environment using `mamba` package and environment manager (installation instructions [here](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html)): 
 
-` .../GeoH2-data-prep % mamba env create -f requirements.yml`
+` .../GeoH2-data-prep % mamba env create -f environment.yaml`
 
-Then activate this new environment using
+This new environment can be activated using:
 
-`.../GeoH2-data-prep % mamba activate geoh2-data-prep`
+`.../GeoH2-data-prep % mamba activate data-prep`
 
-You are now ready to run the scripts in this repository.
+Make sure to deactivate the environment before the next step.
 
-### 1.3 Install Glaes and SPIDER
+### 1.3 Install Spider environment
+You will need to create a separate environment for the Spider submodule to work.
 
-These pre-processing scripts interface with the Glaes and SPIDER packages.
-Please also install these packages and create separate environments for each as described in the instructions available at the links below. 
-- GLAES: https://github.com/FZJ-IEK3-VSA/glaes/tree/master
-- Spider: https://github.com/carderne/ccg-spider/tree/main
+Firstly, navigate to the `ccg-spider/prep` folder:
+
+`.../GeoH2-data-prep % cd ccg-spider/prep`
+
+Next, create a new environment using your package and environment manager. Below is how you can using `mamba`:
+
+`.../prep % mamba create -n spider`
+
+Next, activate the environemtn using:
+
+`.../prep % mamba activate spider`
+
+Next, install some packages:
+
+`.../prep % mamba install pip gdal`
+
+Next, install the spider requirements:
+
+`.../prep % pip install -e .`
+
+You should now have a fully functioning environment named `spider`. You can deactivate this for now and return to the top-level of the repository.
 ___
-## 2 Usage instructions
+## 2 Preparing input data
 
 ### 2.1 Download input data
 
@@ -46,29 +64,15 @@ Before running the preparation scripts, the data must be downloaded.
 - OpenStreetMap Shapefile layers can be downloaded from: https://download.geofabrik.de/africa.html
 - The Corine Land Cover dataset can be downloaded from: https://zenodo.org/records/3939050
 
-Download these files and place them in the `Raw_Spatial_Data` folder.
-For OpenStreetMap files, please extract the .shp.zip folder for each country to a subfolder `OSM\[CountryName]` under `Raw_Spatial_Data`.
+Download these files and place them in the `data` folder.
+For OpenStreetMap files, please extract the .shp.zip folder for each country to a subfolder `OSM\[CountryName]` under `data`.
+For the global oceans and seas geopackage, please save the `goas_v01.gpkg` file to a subfolder `GOaS_v1_20211214_gpkg` under `data`.
 
-### 2.2 Define countries to study
+### 2.2 Hydropower input data (optional)
 
-These tools can allow you to prepare data for multiple countries at once. 
-To define what countries to look at, modify the list `country_names` in `spatial_data_prep.py`, `make_spider_configs.py`, `combine_glaes_spider.py`, and `Inputs_Glaes/workflow.py` to contain the names of all the countries for which you want to prepare data.
-Note that the spellings used for country names must match those used in the Natural Earth country boundaries shapefile. 
-
-### 2.3 Run initial data prep
-
-From `GeoH2-data-prep`, run `spatial_data_prep.py`:
-
-`.../GeoH2-data-prep % python spatial_data_prep.py`
-
-This will pre-process the raw data and place the prepared versions in the `Inputs_Glaes` and `Inputs_Spider` folders.
-
-### 2.4 Prepare Hydropower Data
-
-> [!NOTE]
-> This is an optional step. This can be skipped if you are not analysing hydropower.
-
-The hydropower script processes hydropower plant data and converts it into a **GeoPackage (GPKG)** format for use in **Spider** and later in **GeoH2**. This script filters, cleans, and standardizes hydropower datasets, ensuring compatibility with the **spatial modelling workflow**.
+If you want hydropower to be used as a generator, you will need another input file.
+It should be named `[CountryName]_hydropower_plants.csv` and placed in the `data` folder. There is a template which you can use in the `data` folder with some dummy data in.
+You can also use files from **open-source datasets** like the [Hydropower Database](https://github.com/energy-modelling-toolkit/hydro-power-database). You **must** change the file name to match `[CountryName]_hydropower_plants.csv` and the column titles must be changed to match those in the template file. 
 
 #### **Input Data Requirements**
 - The script is designed for datasets containing:
@@ -77,62 +81,56 @@ The hydropower script processes hydropower plant data and converts it into a **G
   - **Annual generation (GWh)**
   - **Plant type** (e.g., HDAM, HPHS)
   - **Hydraulic head (m)**
-- Make sure to fill the `hydro-power-plants.csv` template in the `Raw_Spatial_Data` folder with the information on your country's hydropower plants.
-- You can also use files from **open-source datasets** like the [Hydropower Database](https://github.com/energy-modelling-toolkit/hydro-power-database). You **must** change the title of the file to match `hydro-power-plants.csv` and the column titles must be changed to match those in the template file.
 
+## 3 Running data prep
 
-From `GeoH2-data-prep`, run `hydropower_prep.py`:
+There are two main scripts that are used as well as the Spider submodule.
 
-`.../GeoH2-data-prep % python hydropower_prep.py` 
+### 3.1 Run initial data prep before Spider
+>[!NOTE]
+> Remember to activate the `prep` environment.
 
+There are some arguments that you need to pass via the CLI. They are:
+- `countries`: At least one required. This should be the name of the countries you are prepping with a space between them. Make sure that the spellings used for country names match those used in the Natural Earth country boundaries shapefile.
+- `--hydro`: Default is False, so only use this when you need to change to True.
 
-### 2.5 Create spider config
+Below is an example of what you could run (with `Country1` and `Country2` being real country names):
 
-Make sure that the input file on line 22 matches either `Country_config.yml` or `Country_config_hydro.yml`.
+`.../GeoH2-data-prep % python prep_before_spider.py Country1 Country2 --hydro True`
 
-From `GeoH2-data-prep`, run `make_spider_configs.py`:
+The above will firstly prepare a hydropower Geopackage (GPKG), then pre-process the raw data and create a spider config and lastly, it will run GLAES. It will do that for each country provided.
 
-`.../GeoH2-data-prep % python make_spider_configs.py`
+### 3.2 Run Spider
 
-This will output a config file in the `Inputs_Spider/configs` folder, that will be used during the Spider step.
+Now you will need to move to the `ccg-spider/prep` directory, activate your `spider` environment, and run the spider CLI. 
 
-### 2.6 Run Glaes
+Take the following command, replace the `Country` with the name of the country you are studying without spaces or periods, and paste it in your terminal:
 
-Take the contents of the `Inputs_Glaes` folder and copy them into your Glaes repository at the top level.
-You can then move to your glaes directory, activate your glaes environment, and run the script `workflow.py`:
+`.../prep % gdal_rasterize data/Country.gpkg -burn 1 -tr 0.1 0.1 data/blank.tif && gdalwarp -t_srs EPSG:4088 data/blank.tif data/blank_proj.tif && spi --config=Country_config.yml Country_hex.geojson`
 
-`.../glaes % python workflow.py`
-
-This will produce files with the format `Country_turbine_placements.shp` and `Country_pv_placements.shp` under the folder `processed`.
-Copy the folder `processed` from the Glaes repository back to this repository, under `Inputs_Glaes/processed`.
-
-### 2.7 Run Spider
-
-Take the contents of the `Inputs_Spider` folder and copy them into your spider repository under `/prep`
-You can then move to this directory, activate your spider environment, and run the spider CLI. 
-
-Make sure you edit the example `Country_config.yml` or `Country_config_hydro.yml` file and place it in the `/prep/configs` folder.
-
-Take the following command, replace the `Country` with the name of the country you are studying without spaces or periods and add `_hydro` to the config file name if needed, and paste it in your terminal:
-
-`.../prep % gdal_rasterize data/Country.gpkg -burn 1 -tr 0.1 0.1 data/blank.tif && gdalwarp -t_srs EPSG:4088 data/blank.tif data/blank_proj.tif && spi --config=configs/Country_config.yml processed/Country_hex.geojson`
-
-This command must be issued for each country to be studied.
+This command must be ran for **each** country.
 This will produce a set of hexagon tiles for each country using the parameters in the config file.
-They will be saved in the folder `processed`.
-Copy this folder back to this repository under `Inputs_Spider\processed`.
+
+>[!IMPORTANT]
+> Do not use `&&` to run all the countries at once, it will not produce new .tif files thus producing inaccurate hexagon files.
+
+### 3.3 Run data prep after spider
 
 >[!NOTE]
-> The tif files saved in the `processed` folder must be deleted before another run.
+> Remember to move back to the top-level folder and to activate the `prep` environment, after deactivating the `spider` environment.
 
-### 2.8 Combine Glaes and Spider results for GeoH2
+There are some arguments that you need to pass via the CLI. They are:
+- `countries`: At least one required. This should be the name of the countries you are prepping with a space between them. Make sure that the spellings used for country names match those used in the Natural Earth country boundaries shapefile.
+- `-ic`: At least one required. This is the two-letter ISO code for your countries. They must be in the same order are your countries.
 
-The spatial data can then be combined into a final hexagon file for use in GeoH2 using the `combine_glaes_spider.py` script:
+Below is an example of what you could run (with `Country1` and `Country2` being real country names and `C1` and `C2` being real 2-letter ISO Codes for each country respectively):
 
-`.../GeoH2-data-prep % python combine_glaes_spider.py`
+`.../GeoH2-data-prep % python prep_before_spider.py Country1 Country2 -ic C1 C2`
 
-This will save a file with the format `Country_hex_final.geojson` to the folder `Inputs_GeoH2\Data`.
-This can then be pasted into a copy of the `GeoH2` repository as your baseline input data for modelling. 
+The above will combine the Spider and GLAES files, creating `[Country]_hex_final.geojson` files for each country. It will then assign an interest rate to different hexagons for different technology categories based on their country. Lastly, this script removes the duplicated hexagons that belong to a country which are not the desired country.
+
+This will save files with the format `hexagons_with_country_[ISOCode].geojson` to the folder `inputs_geox\data`.
+This can then be pasted into a copy of the `Geo-X` repository as your baseline input data for modelling. 
 ___
 
 ## Citation

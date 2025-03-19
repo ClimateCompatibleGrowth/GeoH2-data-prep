@@ -29,8 +29,8 @@ It saves these files as "'country_name'_config.yml" under ccg-spider/prep.
 """
 
 import argparse
-import os
 import geopandas as gpd
+import os
 import pandas as pd
 import pickle
 import rasterio
@@ -38,6 +38,7 @@ from rasterio.mask import mask
 from shapely.geometry import mapping
 from unidecode import unidecode
 import yaml
+
 from utils import clean_country_name
 import glaes.glaes as gl
 
@@ -164,7 +165,7 @@ if __name__ == "__main__":
     for country_name in country_names:
         # Optional prep step
         if args.hydro:
-            input_path = os.path.join(data_path, "hydro-power-plants.csv")
+            input_path = os.path.join(data_path, f"{country_name}_hydropower_plants.csv")
             output_dir = os.path.join(dirname, 'ccg-spider', 'prep', 'data')
             os.makedirs(output_dir, exist_ok=True) 
             output_path = os.path.join(output_dir, "hydropower_dams.gpkg")
