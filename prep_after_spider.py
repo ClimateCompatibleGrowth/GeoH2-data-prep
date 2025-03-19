@@ -20,6 +20,7 @@ which are not the desired country.
 
 """
 
+import argparse
 import geopandas as gpd
 import os
 import pandas as pd
@@ -87,7 +88,7 @@ def assign_country(hexagons, world):
 
     return hexagons_with_country
 
-def remove_extra_hexagons(output_hexagon_path, country_parameters):
+def remove_extra_hexagons(output_hexagon_path, country_name_clean):
     """
     Removes duplicated hexagons.
 
@@ -108,10 +109,9 @@ def remove_extra_hexagons(output_hexagon_path, country_parameters):
         hexagons = json.load(file)
 
     copied_list = hexagons["features"].copy()
-    country_name = country_parameters.index.values[0]
 
     for feature in copied_list:
-        if feature['properties']['country'] != country_name:
+        if feature['properties']['country'] != country_name_clean:
             hexagons['features'].remove(feature)
 
     return hexagons
@@ -133,8 +133,18 @@ def update_hexagons(hexagons, output_hexagon_path):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('countries', nargs='+', type=str,
+                         help="<Required> Enter the country names you are prepping")
+    parser.add_argument('-ic', '--isocodes', nargs='+', type=str,
+                        help="<Required> Enter the isocodes for the country names you are prepping, respectively.")
+    args = parser.parse_args()
+
+    if not args.isocodes:
+        parser.error('Please enter the isocodes. This will be used in naming the final file.')
+
     # Define country name (used for output filenames)
-    country_names = ["Djibouti"]
+    country_names = args.countries
 
     # Get path to this file
     dirname = os.path.dirname(__file__)
@@ -151,7 +161,7 @@ if __name__ == "__main__":
         hex_path = os.path.join(dirname, "ccg-spider", "prep", f"{country_name_clean}_hex.geojson")
         wind_path = os.path.join(dirname, "inputs_glaes", "processed", f"{country_name}_turbine_placements.shp")
         pv_path = os.path.join(dirname, "inputs_glaes", "processed", f"{country_name}_pv_placements.shp")
-        save_path = os.path.join(dirname, "inputs_geoh2", "data", f"{country_name_clean}_hex_final.geojson")
+        save_path = os.path.join(dirname, "inputs_geox", "data", f"{country_name_clean}_hex_final.geojson")
 
         # Load all files and convert all to the country's CRS
         print(" - Loading files...")
@@ -160,23 +170,25 @@ if __name__ == "__main__":
         pv_points = gpd.read_file(pv_path)
         hex.to_crs(pv_points.crs, inplace=True)
 
+        combine_glaes_spider(hex, wind_points, pv_points)
+
         print(" - Done! Saving to GeoJSON...")
 
         update_hexagons(hex, save_path)
         
         # From the main prep file from the main geoh2 repo
         print("Prepping file...")
-        country_parameters = pd.read_excel("country_parameters.xlsx",
-                                            index_col='Country')
-        hexagons = gpd.read_file("Inputs_GeoH2/Data/Djibouti_hex_final.geojson")
+        hexagons = gpd.read_file(f"inputs_geox/data/{country_name_clean}_hex_final.geojson")
         world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres')) # may need to switch to higher res
-
-        output_hexagon_path = "inputs_geoh2/final_output/hexagons_with_country_DJ.geojson"
+        
+        iso_count=0
+        output_hexagon_path = f"inputs_geox/data/hexagons_with_country_{args.isocodes[iso_count]}.geojson"
+        iso_count+=1
 
         hexagons_with_country = assign_country(hexagons, world)
         update_hexagons(hexagons_with_country, output_hexagon_path)
 
         # Finish off with the removing extra hexagons.
-        final_hexagons = remove_extra_hexagons(output_hexagon_path, country_parameters)
+        final_hexagons = remove_extra_hexagons(output_hexagon_path, country_name_clean)
         update_hexagons(final_hexagons, output_hexagon_path)
         print("File prepped.")

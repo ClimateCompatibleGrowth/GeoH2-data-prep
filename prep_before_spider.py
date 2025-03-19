@@ -6,7 +6,11 @@ Created on Wed Oct 18 14:30:10 2023
 
 prep_before_spider.py
 
-This script does three main prep steps.
+This script does three main prep steps and one optional prep step.
+
+If hydropower is required, then this script will prepare raw spatial data for 
+hexagon preparation in SPIDER by creating a geopackage file.
+The outputs are saved in /ccg-spider/prep/data.
 
 Firstly, it prepares raw spatial data for land exclusion in GLAES and hexagon 
 preparation in SPIDER.
@@ -24,8 +28,10 @@ It saves these files as "'country_name'_config.yml" under ccg-spider/prep.
 
 """
 
+import argparse
 import os
 import geopandas as gpd
+import pandas as pd
 import pickle
 import rasterio
 from rasterio.mask import mask
@@ -113,8 +119,15 @@ def replace_country(node, country_name):
         
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('countries', nargs='+', type=str,
+                         help="<Required> Enter the country names you are prepping")
+    parser.add_argument('--hydro', nargs='?', const=False, type=bool,
+                        help="<Optional> Enter True if you need hydro to be prepped for. Default is False")
+    args = parser.parse_args()
+
     # Define country name(s) to be used
-    country_names = ["Djibouti"]
+    country_names = args.countries
 
     # Store paths to input files and folders
     dirname = os.path.dirname(__file__)
@@ -123,7 +136,8 @@ if __name__ == "__main__":
     clcRasterPath = os.path.join(data_path, "PROBAV_LC100_global_v3.0.1_2019-nrt_Discrete-Classification-map_EPSG-4326.tif")
     oceanPath = os.path.join(data_path, "GOaS_v1_20211214_gpkg", "goas_v01.gpkg")
     OSM_path = os.path.join(data_path, "OSM")
-    config_input_file_path = os.path.join(dirname, "inputs_spider", "Country_config.yml")
+    config_name = "Country_config_hydro.yml" if args.hydro else "Country_config.yml"
+    config_input_file_path = os.path.join(dirname, "inputs_spider", config_name)
     
     # Store paths to output folders
     glaes_data_path = os.path.join(dirname, 'glaes', 'glaes', 'data')
@@ -148,7 +162,49 @@ if __name__ == "__main__":
 
     # create a for loop that can loop through a list of country names
     for country_name in country_names:
-        # First prep step
+        # Optional prep step
+        if args.hydro:
+            input_path = os.path.join(data_path, "hydro-power-plants.csv")
+            output_dir = os.path.join(dirname, 'ccg-spider', 'prep', 'data')
+            os.makedirs(output_dir, exist_ok=True) 
+            output_path = os.path.join(output_dir, "hydropower_dams.gpkg")
+
+            # Read data from CSV
+            data = pd.read_csv(input_path)
+
+            # Select relevant columns
+            data = data[['id', 'lat', 'lon', 'name', 'type', 
+                        'capacity', 'avg_annual_generation_GWh', 
+                        'head', 'country_code']]
+
+            # Ensure numeric conversion for relevant columns
+            data['lon'] = pd.to_numeric(data['lon'], errors='coerce')
+            data['lat'] = pd.to_numeric(data['lat'], errors='coerce')
+            data['capacity'] = pd.to_numeric(data['capacity'], errors='raise')
+
+            # Drop rows with missing coordinates
+            data = data.dropna(subset=['lon', 'lat'])
+
+            ######## Data Preparation ########
+            # Filter for existing plants
+            data_existing = data.dropna(subset=['head'])
+            print(f"Number of missing 'head' values: {data_existing['head'].isna().sum()}")
+
+            ######## Export GeoPackage ########
+            gdf = gpd.GeoDataFrame(
+                data_existing,
+                geometry=gpd.points_from_xy(data_existing.lon, data_existing.lat)
+            )
+
+            gdf.set_crs(epsg=4326, inplace=True)
+            gdf.to_file(output_path, layer='dams', driver="GPKG")
+
+            # Display where the file is stored (relative path)
+            relative_output_path = os.path.relpath(output_path, dirname)
+            print(f"GeoPackage file successfully created at: {relative_output_path}")
+
+
+        # First prep step
         print("Prepping spider and glaes data files for " + country_name + "...")
 
         country_name_clean = clean_country_name(country_name)
@@ -219,6 +275,7 @@ if __name__ == "__main__":
 
         print("Glaes and spider data files prepped!")
 
+
         # Second prep step
         print("Calculating land exclusions for " + country_name)
 
@@ -229,6 +286,7 @@ if __name__ == "__main__":
         calculating_exclusions(glaes_data_path, country_name, EPSG, glaes_processed_path, turbine_radius)
         print("Finished calulcating land exclusions!")
      
+
         # Final prep step
         print(f'Prepping config file for {country_name_clean}...')
 

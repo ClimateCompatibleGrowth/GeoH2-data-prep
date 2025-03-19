@@ -1,7 +1,6 @@
 name: prep
 channels:
   - conda-forge
-  - bioconda
   - nodefaults
 dependencies:
   - conda-forge::geopandas
@@ -9,7 +8,6 @@ dependencies:
   - conda-forge::shapely
   - conda-forge::unidecode
   - conda-forge::pyyaml
-  - bioconda::snakemake
   - conda-forge::pip
   - conda-forge::matplotlib
   - conda-forge::descartes
