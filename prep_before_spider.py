@@ -41,7 +41,8 @@ import yaml
 from utils import clean_country_name
 import glaes.glaes as gl
 
-def calculating_exclusions(glaes_data_path, country_name, EPSG, glaes_processed_path, turbine_radius):
+def calculating_exclusions(glaes_data_path, country_name, EPSG, 
+                           glaes_processed_path, turbine_radius):
     """
     Calculating exclusions using glaes.
 
@@ -60,7 +61,7 @@ def calculating_exclusions(glaes_data_path, country_name, EPSG, glaes_processed_
         Turbine radius in meters used for spacing.
     """
     print(" - Initializing exclusion calculator...")
-    ec = gl.ExclusionCalculator(os.path.join(glaes_data_path,  f'{country_name}.geojson'), srs=EPSG, pixelSize=100)
+    ec = gl.ExclusionCalculator(os.path.join(glaes_data_path, f'{country_name}.geojson'), srs=EPSG, pixelSize=100)
 
     print(" - Applying exclusions - coast...")
     ec.excludeVectorType(os.path.join(glaes_data_path,  f'{country_name}_oceans.geojson'), buffer=250)
@@ -88,7 +89,6 @@ def calculating_exclusions(glaes_data_path, country_name, EPSG, glaes_processed_
 
     print(" - Distributing pv plants and saving placements as .shp...")
     ec.distributeItems(separation=440, output=os.path.join(glaes_processed_path, f'{country_name}_pv_placements.shp'))
-
 
 def replace_country(node, country_name):
     """
@@ -122,7 +122,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('countries', nargs='+', type=str,
                          help="<Required> Enter the country names you are prepping")
-    parser.add_argument('--hydro', nargs='?', const=False, type=bool,
+    parser.add_argument('--hydro', nargs='?', default=False, type=bool,
                         help="<Optional> Enter True if you need hydro to be prepped for. Default is False")
     args = parser.parse_args()
 
