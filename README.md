@@ -1,16 +1,15 @@
 # Geo-X-data-prep
 Spatial data preparation tools for [Geo-X](https://github.com/ClimateCompatibleGrowth/GeoX) users. 
 The Geo-X library requires spatial hexagon files for the area of interest with several spatial parameters attached as an input. 
-These scripts are built to assist in creating these input data. 
-They allow users to move from raw data inputs to a Geo-X-ready hexagon input by interfacing with the Global Land Availability of Energy Systems ([GLAES](https://github.com/FZJ-IEK3-VSA/glaes/tree/master/)) and Spatially Integrated Development of Energy and Resources ([SPIDER](https://github.com/carderne/ccg-spider/tree/main)).
+These scripts are designed to assist in creating these input data. They allow users to move from raw data inputs to a Geo-X-ready hexagon input by interfacing with the Global Land Availability of Energy Systems ([GLAES](https://github.com/FZJ-IEK3-VSA/glaes/tree/master/)) and Spatially Integrated Development of Energy and Resources ([SPIDER](https://github.com/carderne/ccg-spider/tree/main)).
 
 > [!NOTE]
-> Please note that when using this codebase, users will need to modify the filenames and paths included in the scripts should new releases of the suggested data be made or should the user choose to use different/supplementary data sources.
+> Please note that when using this codebase, users will need to modify the filenames and paths included in the scripts if new releases of the suggested data be made or if the user choose to use different/supplementary data sources.
 ___
 ## 1 Installation instructions
 
 ### 1.1 Clone the repository and submodules
-First, clone the repository and initialise the submodules in one:
+First, clone the repository and initialise the submodules in one step:
 
 `/your/path % git clone --recurse-submodules https://github.com/ClimateCompatibleGrowth/GeoH2-data-prep.git`
 
@@ -26,7 +25,7 @@ This new environment can be activated using:
 
 `.../Geo-X-data-prep % mamba activate data-prep`
 
-Make sure to deactivate the environment before the next step.
+Make sure to deactivate the environment before proceeding to the next step.
 
 ### 1.3 Install SPIDER environment
 You will need to create a separate environment for the SPIDER submodule to work.
@@ -65,17 +64,17 @@ Before running the preparation scripts, some data must be downloaded.
 - The Corine Land Cover dataset (PROBAV_LC100_global_v3.0.1_2019-nrt_Discrete-Classification-map_EPSG-4326.tif) can be downloaded from: https://zenodo.org/records/3939050
 
 Download these files and place them in the `data` folder.
-For OpenStreetMap files, please extract the .shp.zip folder for each country to a subfolder `OSM\[CountryName]` under `data`.
+For OpenStreetMap files, please extract the .shp.zip folder for each country to a subfolder `OSM/[CountryName]` under `data`.
 For the global oceans and seas geopackage, please save the `goas_v01.gpkg` file to a subfolder `GOaS_v1_20211214_gpkg` under `data`.
 
 >[!IMPORTANT]
->Ensure that the config file you will be using, either `Country_config.yml` or `Country_config_hydro.yml`, located in the `inputs/spider` folder, contains all the information you want SPIDER to use.
+>Ensure that the config file you are using, either `Country_config.yml` or `Country_config_hydro.yml`, located in the `inputs/spider` folder, contains all the information you want SPIDER to use.
 
 ### 2.2 Hydropower input data (optional)
 
 If you want hydropower to be used as a generator, you will need another input file.
 It should be named `[CountryName]_hydropower_plants.csv` with the `CountryName` spelling matching those used in the Natural Earth country boundaries shapefile. In the `data` folder, there is a template that can be filled in and name updated. That is where the file must be placed.
-You can also use files from **open-source datasets** like the [Hydropower Database](https://github.com/energy-modelling-toolkit/hydro-power-database). You **must** change the file name to match `[CountryName]_hydropower_plants.csv` and the column titles must be changed to match those in the template file.
+You can also use files from **open-source datasets** like the [Hydropower Database](https://github.com/energy-modelling-toolkit/hydro-power-database). You **must** rename the file to `[CountryName]_hydropower_plants.csv` and ensure that the column titles match those in the template file.
 
 #### **Input Data Requirements**
 - The script is designed for datasets containing:
@@ -130,25 +129,25 @@ Activate the `prep` environment for this step.
 
 There are some arguments that you need to pass via the terminal. They are:
 - `countries`: At least one required. This should be the name of the countries you are prepping with a space between them. Make sure that the spellings used for country names match those used in the Natural Earth country boundaries shapefile.
-- `-ic`: At least one required. This is the two-letter ISO code for your countries. They must be in the same order are your countries.
+- `-ic`: At least one required. This is the two-letter ISO code for your countries. They must be in the same order as your countries.
 
 Below is an example of what you could run (with `Country1` and `Country2` being specific country names, and `C1` and `C2` being specific 2-letter ISO Codes for each country respectively):
 
 `.../Geo-X-data-prep % python prep_after_spider.py Country1 Country2 -ic C1 C2`
 
 The above will combine the SPIDER and GLAES files, creating `[Country]_hex_final.geojson` files for each country. It will then assign an interest rate to different hexagons for different technology categories based on their country. Lastly, this script removes the duplicated hexagons that belong to a country which are not the desired country.
-The final files will be saved as `hexagons_with_country_[ISOCode].geojson` in the `inputs_geox\data` folder.
+The final files will be saved as `hexagons_with_country_[ISOCode].geojson` in the `inputs_geox/data` folder.
 
-This can then be placed into a copy of the `Geo-X` repository as the baseline input data for modelling. 
+This can be placed into a copy of the `Geo-X` repository as the baseline input data for modelling. 
 If you set `hydro` to True, a `hydropower_dams.gpkg` file for each country will be generated into the `ccg-spider/prep/data` folder. These files must be placed into the `data/hydro` folder of your `Geo-X` repository.
 
 ## Additional notes (Recommended to read at least once)
 As the runs progress, you may not see all the files being generated, but rest assured they are there, taking up space. Once the runs are finished, it's recommended to save the necessary files and review the listed folders to delete any unnecessary files in order to free up space:
--`ccg-spider/prep`
--`ccg-spider/prep/data`
--`glaes/glases/data`
--`inputs_geox/data`
--`inputs_glaes/processed`
+- `ccg-spider/prep`
+- `ccg-spider/prep/data`
+- `glaes/glases/data`
+- `inputs_geox/data`
+- `inputs_glaes/processed`
 
 
 
