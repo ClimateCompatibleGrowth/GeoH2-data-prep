@@ -140,7 +140,7 @@ if __name__ == "__main__":
     parser.add_argument('countries', nargs='+', type=str,
                          help="<Required> Enter the country names you are prepping")
     parser.add_argument('-ic', '--isocodes', nargs='+', type=str,
-                        help="<Required> Enter the isocodes for the country names you are prepping, respectively.")
+                        help="<Required> Enter the ISO codes for the country names you are prepping, respectively.")
     args = parser.parse_args()
 
     if not args.isocodes:
@@ -151,6 +151,9 @@ if __name__ == "__main__":
 
     # Get path to this file
     dirname = os.path.dirname(__file__)
+
+    # Counter to iterate through ISO codes
+    iso_count=0
 
     # create a for loop that can loop through a list of country names
     for country_name in country_names:
@@ -184,7 +187,6 @@ if __name__ == "__main__":
         hexagons = gpd.read_file(f"inputs_geox/data/{country_name_clean}_hex_final.geojson")
         world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres')) # may need to switch to higher res
         
-        iso_count=0
         output_hexagon_path = f"inputs_geox/data/hexagons_with_country_{args.isocodes[iso_count]}.geojson"
         iso_count+=1
 

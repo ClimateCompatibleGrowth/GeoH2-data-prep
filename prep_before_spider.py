@@ -39,8 +39,9 @@ from shapely.geometry import mapping
 from unidecode import unidecode
 import yaml
 
-from utils import clean_country_name
 import glaes.glaes as gl
+from utils import clean_country_name
+
 
 def calculating_exclusions(glaes_data_path, country_name, EPSG, 
                            glaes_processed_path, turbine_radius):
