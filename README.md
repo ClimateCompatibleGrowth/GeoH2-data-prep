@@ -136,7 +136,7 @@ Below is an example of what you could run (with `Country1` and `Country2` being 
 `.../Geo-X-data-prep % python prep_after_spider.py Country1 Country2 -ic C1 C2`
 
 The above will combine the SPIDER and GLAES files, creating `[Country]_hex_final.geojson` files for each country. It will then assign an interest rate to different hexagons for different technology categories based on their country. Lastly, this script removes the duplicated hexagons that belong to a country which are not the desired country.
-The final files will be saved as `hexagons_with_country_[ISOCode].geojson` in the `inputs_geox/data` folder.
+The final files will be saved as `hex_final_[ISOCode].geojson` in the `inputs_geox/data` folder.
 
 This can be placed into a copy of the `Geo-X` repository as the baseline input data for modelling. 
 If you set `hydro` to True, a `hydropower_dams.gpkg` file for each country will be generated into the `ccg-spider/prep/data` folder. These files must be placed into the `data/hydro` folder of your `Geo-X` repository.
